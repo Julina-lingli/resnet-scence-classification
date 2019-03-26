@@ -70,6 +70,8 @@ def _parse_function(filename, label, is_training):
 
     new_image = tf.cast(new_image, tf.uint8)
     label = tf.cast(label, tf.int32)
+    label = tf.one_hot(label, 80)
+
     return new_image, label
 
 
@@ -160,10 +162,10 @@ def load_data(json_path, images_dir, is_training, batch_size, num_epochs):
     print("filenames", filenames[:2])
     # 图片文件的列表
     # filenames = tf.constant(["/var/data/image1.jpg", "/var/data/image2.jpg", ...])
-    filenames_tensor = tf.constant(filenames)
+    filenames_tensor = tf.constant(filenames[:500])
     print("filenames_tensor:", filenames_tensor)
     # label[i]就是图片filenames[i]的label
-    labels_tensor = tf.constant(label_list)
+    labels_tensor = tf.constant(label_list[:500])
 
     # features_placeholder = tf.placeholder(filenames_tensor.dtype, filenames_tensor.shape)
     # labels_placeholder = tf.placeholder(labels_tensor.dtype, labels_tensor.shape)
@@ -187,7 +189,8 @@ def load_data(json_path, images_dir, is_training, batch_size, num_epochs):
     # 此时dataset中的一个元素是(image_resized_batch, label_batch)
     # dataset = dataset.shuffle(buffersize=10).batch(batch_size).repeat(num_epochs)
     # 划分batch，epoch
-    dataset = dataset.batch(batch_size).repeat(num_epochs)
+    # dataset = dataset.batch(batch_size).repeat(num_epochs)
+    dataset = dataset.batch(batch_size).repeat()
     # 初始化迭代器，遍历一遍数据集
     iterator = dataset.make_one_shot_iterator()
     #
@@ -245,7 +248,7 @@ def load_data(json_path, images_dir, is_training, batch_size, num_epochs):
 
     return next_feature, next_label
 
-load_data(JSON_TRAIN, TRAIN_IMAGES_DIR, is_training=True, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
+# load_data(JSON_TRAIN, TRAIN_IMAGES_DIR, is_training=True, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
 
 
 

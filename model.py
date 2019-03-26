@@ -14,7 +14,7 @@ def _conv_bn(input_tensor, filters, kernel_size, strides, con_name, bn_name, pad
     #
     # he_normal(seed=None)
     # He正态分布初始化方法，参数由0均值，标准差为sqrt(2 / fan_in) 的正态分布产生，其中fan_in权重张量的扇入
-    x = layers.Conv2D(filters, kernel_size, stride= strides,
+    x = layers.Conv2D(filters, kernel_size, strides= strides,
                       padding=padding,
                       kernel_initializer="he_normal",
                       kernel_regularizer=regularizers.l2(L2_WEIGHT_DECAY),
@@ -147,7 +147,7 @@ def resnet_model_keras(num_classes):
     # 将图片的尺寸由224，224，3变为227，227，3，保证stride前，输入输出的维度一致
     x = layers.ZeroPadding2D(padding=(3, 3), name='conv1_pad')(img_input)
     # 残差块的输入进行预处理
-    x = _conv_bn(x, 64, (7, 7), (2, 2), "conv1", "bn_conv1", padding="same")
+    x = _conv_bn(x, 64, (7, 7), (2, 2), "conv1", "bn_conv1", padding="valid")
     x = layers.Activation("relu")(x)
     x = layers.ZeroPadding2D(padding=(1,1), name='pool1_pad')(x)
     x = layers.MaxPooling2D((3, 3), strides=(2, 2), name="pool1")(x)
@@ -199,4 +199,6 @@ def resnet_model_keras(num_classes):
         name='fc1000')(x)
 
     # 创建模型
-    return models.Model(img_input, x, name="resnet50")
+    resnet_models = models.Model(img_input, x, name="resnet50")
+    # print(resnet_models.summary())
+    return resnet_models
