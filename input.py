@@ -14,6 +14,7 @@ from common import MAX_STEPS
 from common import NUM_EPOCHS
 from common import BATCH_SIZE
 from common import LOG_DIR
+from common import NUM_CLASS
 
 def get_image_label_from_json(json_path, images_dir):
     with open(json_path, "r") as f:
@@ -70,7 +71,7 @@ def _parse_function(filename, label, is_training):
 
     new_image = tf.cast(new_image, tf.uint8)
     label = tf.cast(label, tf.int32)
-    label = tf.one_hot(label, 80)
+    label = tf.one_hot(label, NUM_CLASS)
 
     return new_image, label
 
@@ -162,10 +163,12 @@ def load_data(json_path, images_dir, is_training, batch_size, num_epochs):
     print("filenames", filenames[:2])
     # 图片文件的列表
     # filenames = tf.constant(["/var/data/image1.jpg", "/var/data/image2.jpg", ...])
-    filenames_tensor = tf.constant(filenames[:500])
+    filenames_tensor = tf.constant(filenames)
+    # filenames_tensor = tf.constant(filenames[:2500])
     print("filenames_tensor:", filenames_tensor)
     # label[i]就是图片filenames[i]的label
-    labels_tensor = tf.constant(label_list[:500])
+    labels_tensor = tf.constant(label_list)
+    # labels_tensor = tf.constant(label_list[:2500])
 
     # features_placeholder = tf.placeholder(filenames_tensor.dtype, filenames_tensor.shape)
     # labels_placeholder = tf.placeholder(labels_tensor.dtype, labels_tensor.shape)
@@ -187,10 +190,10 @@ def load_data(json_path, images_dir, is_training, batch_size, num_epochs):
     # 采用tf的标准图像解码函数，将dataset数据集中的每个元素都应用于_parse_function
     dataset = dataset.map(lambda x, y:_parse_function(x, y, is_training))
     # 此时dataset中的一个元素是(image_resized_batch, label_batch)
-    # dataset = dataset.shuffle(buffersize=10).batch(batch_size).repeat(num_epochs)
-    # 划分batch，epoch
+    dataset = dataset.shuffle(buffer_size=1000, seed=2000).batch(batch_size).repeat()
+    # 划分batch，epoch, repeat()参数设置为空，防止循环读取数据时超过范围
     # dataset = dataset.batch(batch_size).repeat(num_epochs)
-    dataset = dataset.batch(batch_size).repeat()
+    # dataset = dataset.batch(batch_size).repeat()
     # 初始化迭代器，遍历一遍数据集
     iterator = dataset.make_one_shot_iterator()
     #

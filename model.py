@@ -200,5 +200,5 @@ def resnet_model_keras(num_classes):
 
     # 创建模型
     resnet_models = models.Model(img_input, x, name="resnet50")
-    # print(resnet_models.summary())
+    resnet_models.summary()
     return resnet_models
