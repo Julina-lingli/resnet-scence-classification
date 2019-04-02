@@ -4,6 +4,7 @@ import os
 import json
 from PIL import Image
 import numpy as np
+import pandas as pd
 
 
 from common import JSON_TRAIN
@@ -15,6 +16,7 @@ from common import NUM_EPOCHS
 from common import BATCH_SIZE
 from common import LOG_DIR
 from common import NUM_CLASS
+from common import CLASS_LABEL
 
 def get_image_label_from_json(json_path, images_dir):
     with open(json_path, "r") as f:
@@ -254,10 +256,22 @@ def load_data(json_path, images_dir, is_training, batch_size, num_epochs):
 # load_data(JSON_TRAIN, TRAIN_IMAGES_DIR, is_training=True, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
 
 
+# 读取class label
+def read_class(class_path):
+    df = pd.read_csv(class_path, header=None)
+    # print(df.head(5))
+    print(df.index)
+    print(df.columns)
+    df.columns = ["label_id", "C_name", "E_name"]
+    print(df.head(5))
+    sence = df[df.label_id == 5]
+    print(sence)
+    sence = df.loc[df.label_id.isin([1,3,5])]
+    print(sence)
+    return
 
 
-
-
+read_class("scene_classes.csv")
 
 
 

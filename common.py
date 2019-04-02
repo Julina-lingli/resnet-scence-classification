@@ -20,7 +20,7 @@ JSON_VAL = 'D:\datasets\\ai_challenger_scene\scene_validation_annotations_201709
 
 LOG_DIR = "logs"
 
-
+CLASS_LABEL = "D:\datasets\\ai_challenger_scene\scene_classes"
 
 NUM_CLASS = 80
 

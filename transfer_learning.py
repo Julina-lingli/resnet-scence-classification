@@ -1,8 +1,8 @@
 import tensorflow as tf
 # from keras.applications.resnet50 import ResNet50
 from tensorflow.keras.applications.resnet50 import ResNet50
-from tensorflow.keras import layers, models, optimizers
-from tensorflow.keras.callbacks import TensorBoard,ModelCheckpoint
+from tensorflow.keras import layers, models, optimizers, metrics
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 from input import load_data
 from common import JSON_TRAIN
 from common import TRAIN_IMAGES_DIR
@@ -25,9 +25,9 @@ def resnet50_model(lr=0.005, decay=1e-6, momentum=0.9, nb_classes=80):
                           include_top=False, pooling='avg',
                          input_shape=(224, 224, 3), classes=nb_classes)
     # 冻结base_model所有层，这样就可以正确获得bottleneck特征
-    for layer in base_model.layers[-8:]:
+    for layer in base_model.layers[ : -8]:
         layer.trainable = False
-        print(layer.name)
+        # print(layer.name)
 
     x = base_model.output
 
@@ -38,13 +38,14 @@ def resnet50_model(lr=0.005, decay=1e-6, momentum=0.9, nb_classes=80):
 
     # 可观察模型结构
     tl_model.summary()
-
-
+    def top3_accuracy(y, predic):
+        return metrics.top_k_categorical_accuracy(y, predic, k=3)
+    # top3 = metrics.top_k_categorical_accuracy(labels, predic, k=3)
     adm = optimizers.Adam()
 
     tl_model.compile(optimizer=adm,
                   loss="categorical_crossentropy",
-                  metrics=["categorical_accuracy"]
+                  metrics=[metrics.categorical_accuracy, top3_accuracy]
                   )
 
     return tl_model
@@ -63,6 +64,8 @@ def train(log_dir):
     checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
                                  monitor='val_loss', verbose=1, save_weights_only=True,
                                  save_best_only=True, period=5)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
+    early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
     # math.ceil向上取整，一个epoch需要将数据集整个遍历一遍
     steps_per_epoch = math.ceil(STEPS_PER_EPOCH_FOR_TRAIN)
     val_steps = math.ceil(STEPS_PER_EPOCH_FOR_EVAL)
@@ -82,9 +85,10 @@ def train(log_dir):
 
     # 评估模型
     print("evaluate:")
-    loss, accuracy = tl_model.evaluate(x_test, y_test, verbose=1, steps=val_steps)
+    loss, accuracy , top3 = tl_model.evaluate(x_test, y_test, verbose=1, steps=val_steps)
     print('Test loss:', loss)
     print('Test accuracy:', accuracy)
+    print('Test accuracy of top3:', top3)
 
     return
 
