@@ -1,4 +1,5 @@
 import tensorflow as tf
+import matplotlib.pyplot as plt
 # from keras.applications.resnet50 import ResNet50
 from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras import layers, models, optimizers, metrics
@@ -53,7 +54,7 @@ def resnet50_model(lr=0.005, decay=1e-6, momentum=0.9, nb_classes=80):
 def train(log_dir):
     # load data
     next_feature, next_label = load_data(JSON_TRAIN, TRAIN_IMAGES_DIR,
-                                         is_training=False, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
+                                         is_training=True, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
 
     x_test, y_test = load_data(JSON_VAL, VAL_IMAGES_DIR,
                                is_training=False, batch_size=BATCH_SIZE, num_epochs=1)
@@ -61,28 +62,58 @@ def train(log_dir):
     tl_model = resnet50_model()
 
     logging = TensorBoard(log_dir=log_dir)
-    checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
-                                 monitor='val_loss', verbose=1, save_weights_only=True,
+    checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}.h5',
+                                 monitor='loss', verbose=1, save_weights_only=True,
                                  save_best_only=True, period=5)
-    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
-    early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1)
+    reduce_lr = ReduceLROnPlateau(monitor='loss', factor=0.1, patience=3, verbose=1)
+    early_stopping = EarlyStopping(monitor='loss', min_delta=0, patience=10, verbose=1)
     # math.ceil向上取整，一个epoch需要将数据集整个遍历一遍
     steps_per_epoch = math.ceil(STEPS_PER_EPOCH_FOR_TRAIN)
     val_steps = math.ceil(STEPS_PER_EPOCH_FOR_EVAL)
 
-    # steps_per_epoch = math.ceil(2500/BATCH_SIZE)
-    # val_steps= math.ceil(2500/BATCH_SIZE)
+    steps_per_epoch = math.ceil(500/BATCH_SIZE)
+    val_steps= math.ceil(500/BATCH_SIZE)
 
     # validation_steps = int(320/BATCH_SIZE)
     print("steps_per_epoch:", steps_per_epoch)
     hist = tl_model.fit(next_feature, next_label, batch_size=None, epochs=NUM_EPOCHS,
+                        validation_data=(x_test, y_test),
                         verbose=1,
                         callbacks=[checkpoint],
-                        steps_per_epoch=steps_per_epoch)
+                        steps_per_epoch=steps_per_epoch,
+                        validation_steps=val_steps)
     # duration_time = time.time() - start_time
     print("history:")
-    print(hist.history)
+    # print(hist.history.keys())
+    print(hist.history["loss"])
+    plt.plot(hist.history["loss"])
+    plt.plot(hist.history["val_loss"])
+    plt.title("model loss")
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig(LOG_DIR + "/fig/model_loss.png")
+    plt.show()
 
+    # """
+    plt.plot(hist.history["categorical_accuracy"])
+    plt.plot(hist.history["val_categorical_accuracy"])
+    plt.title("model accuracy")
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig(LOG_DIR + "/fig/model_top1.png")
+    plt.show()
+
+    plt.plot(hist.history["top3_accuracy"])
+    plt.plot(hist.history["val_top3_accuracy"])
+    plt.title("model accuracy3")
+    plt.ylabel('accuracy3')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig(LOG_DIR + "/fig/model_top3.png")
+    plt.show()
+    # """
     # 评估模型
     print("evaluate:")
     loss, accuracy , top3 = tl_model.evaluate(x_test, y_test, verbose=1, steps=val_steps)

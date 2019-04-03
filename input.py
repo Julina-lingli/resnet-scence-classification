@@ -165,12 +165,12 @@ def load_data(json_path, images_dir, is_training, batch_size, num_epochs):
     print("filenames", filenames[:2])
     # 图片文件的列表
     # filenames = tf.constant(["/var/data/image1.jpg", "/var/data/image2.jpg", ...])
-    filenames_tensor = tf.constant(filenames)
-    # filenames_tensor = tf.constant(filenames[:2500])
-    print("filenames_tensor:", filenames_tensor)
+    # filenames_tensor = tf.constant(filenames)
+    filenames_tensor = tf.constant(filenames[:500])
+    # print("filenames_tensor:", filenames_tensor)
     # label[i]就是图片filenames[i]的label
-    labels_tensor = tf.constant(label_list)
-    # labels_tensor = tf.constant(label_list[:2500])
+    # labels_tensor = tf.constant(label_list)
+    labels_tensor = tf.constant(label_list[:500])
 
     # features_placeholder = tf.placeholder(filenames_tensor.dtype, filenames_tensor.shape)
     # labels_placeholder = tf.placeholder(labels_tensor.dtype, labels_tensor.shape)
