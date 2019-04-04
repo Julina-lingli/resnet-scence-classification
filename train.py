@@ -32,7 +32,7 @@ def do_train(num_class, log_dir):
 
     # load data
     next_feature, next_label = load_data(JSON_TRAIN, TRAIN_IMAGES_DIR,
-                                         is_training=False, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
+                                         is_training=True, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
 
     x_test, y_test = load_data(JSON_VAL, VAL_IMAGES_DIR,
                                is_training=False, batch_size=BATCH_SIZE, num_epochs=1)
@@ -46,7 +46,8 @@ def do_train(num_class, log_dir):
 
     # 创建模型，定义输入输出
     model = resnet_model_keras(num_class)
-
+    model.load_weights(filepath="weights\\resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5",
+                       by_name=True)
     # loss_fn = losses.sparse_categorical_crossentropy()
     adm = optimizers.Adam()
     # metrics_fn = metrics.sparse_categorical_crossentropy()
@@ -62,16 +63,16 @@ def do_train(num_class, log_dir):
     # steps_per_epoch = math.ceil(STEPS_PER_EPOCH_FOR_TRAIN)
     # val_steps = math.ceil(STEPS_PER_EPOCH_FOR_EVAL)
 
-    steps_per_epoch = math.ceil(2500/BATCH_SIZE)
-    val_steps= math.ceil(2500/BATCH_SIZE)
+    steps_per_epoch = math.ceil(500/BATCH_SIZE)
+    val_steps = math.ceil(500/BATCH_SIZE)
 
     # validation_steps = int(320/BATCH_SIZE)
     print("steps_per_epoch:",steps_per_epoch)
-    """
+
     hist = model.fit(next_feature, next_label, batch_size=None, epochs=NUM_EPOCHS,
                      validation_data=(x_test, y_test),
                      verbose=1,
-                     callbacks=[logging, checkpoint, reduce_lr, early_stopping],
+                     callbacks=[checkpoint],
                      steps_per_epoch=steps_per_epoch,
                      validation_steps=val_steps)
     """
@@ -79,6 +80,7 @@ def do_train(num_class, log_dir):
                      verbose=1,
                      callbacks=[logging, checkpoint, reduce_lr, early_stopping],
                      steps_per_epoch=steps_per_epoch)
+    """
     # duration_time = time.time() - start_time
     print("history:")
     print(hist.history)
@@ -95,7 +97,7 @@ def do_train(num_class, log_dir):
 
     return
 
-log_dir = LOG_DIR + "/resnet50"
+log_dir = LOG_DIR + "/resnet50/"
 if tf.gfile.Exists(log_dir):
     tf.gfile.DeleteRecursively(log_dir)
 
