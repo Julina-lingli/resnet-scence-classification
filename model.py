@@ -130,7 +130,7 @@ def _conv_block(input_tensor,
 
     x = _conv_bn(x, filters3, (1, 1), (1, 1), con_name_base + "2c", bn_name_base + "2c")
 
-    shortcut = _conv_bn(input_tensor, filters3, (1, 1), strides, con_name_base + "s1", bn_name_base + "s1", padding="same")
+    shortcut = _conv_bn(input_tensor, filters3, (1, 1), strides, con_name_base + "1", bn_name_base + "1", padding="same")
 
     x = layers.add([x, shortcut])
 
@@ -196,7 +196,7 @@ def resnet_model_keras(num_classes):
 
         bias_regularizer=regularizers.l2(L2_WEIGHT_DECAY),
 
-        name='fc1000')(x)
+        name='fc80')(x)
 
     # 创建模型
     resnet_models = models.Model(img_input, x, name="resnet50")
