@@ -1,6 +1,6 @@
 import tensorflow as tf
+from tensorflow.python.keras.utils import multi_gpu_model
 import matplotlib.pyplot as plt
-
 from input import load_data
 from model import resnet_model_keras
 from tensorflow.python.keras import optimizers
@@ -31,12 +31,19 @@ def loss(logits, labels):
 
 def do_train(num_class, log_dir):
 
-    # load data
-    next_feature, next_label = load_data(JSON_TRAIN, TRAIN_IMAGES_DIR,
-                                         is_training=True, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
+    with tf.device("/cpu:0"):
+        # load data
+        next_feature, next_label = load_data(JSON_TRAIN, TRAIN_IMAGES_DIR,
+                                             is_training=True, batch_size=BATCH_SIZE,
+                                             num_epochs=NUM_EPOCHS)
 
-    x_test, y_test = load_data(JSON_VAL, VAL_IMAGES_DIR,
-                               is_training=False, batch_size=BATCH_SIZE, num_epochs=1)
+        x_test, y_test = load_data(JSON_VAL, VAL_IMAGES_DIR,
+                                   is_training=False, batch_size=BATCH_SIZE,
+                                   num_epochs=1)
+        # 创建模型，定义输入输出
+        model = resnet_model_keras(num_class)
+        model.load_weights(filepath="weights\\resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5",
+                           by_name=True)
     #
     logging = TensorBoard(log_dir=log_dir)
     checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
@@ -45,10 +52,7 @@ def do_train(num_class, log_dir):
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1)
 
-    # 创建模型，定义输入输出
-    model = resnet_model_keras(num_class)
-    model.load_weights(filepath="weights\\resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5",
-                       by_name=True)
+    parallel_model = multi_gpu_model(model, gpus=2)
     # loss_fn = losses.sparse_categorical_crossentropy()
     adm = optimizers.Adam()
     # metrics_fn = metrics.sparse_categorical_crossentropy()
@@ -117,6 +121,7 @@ def do_train(num_class, log_dir):
     plt.savefig(LOG_DIR + "/fig/res_model_top3.png")
     plt.show()
     # """
+
     # 评估模型
     print("evaluate:")
     loss, accuracy = model.evaluate(x_test, y_test, verbose=1, steps=val_steps)

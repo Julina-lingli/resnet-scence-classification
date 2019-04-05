@@ -16,7 +16,7 @@ def _conv_bn(input_tensor, filters, kernel_size, strides, con_name, bn_name, pad
     # He正态分布初始化方法，参数由0均值，标准差为sqrt(2 / fan_in) 的正态分布产生，其中fan_in权重张量的扇入
     x = layers.Conv2D(filters, kernel_size, strides= strides,
                       padding=padding,
-                      kernel_initializer="he_normal",
+                      # kernel_initializer="he_normal",
                       kernel_regularizer=regularizers.l2(L2_WEIGHT_DECAY),
                       bias_regularizer=regularizers.l2(L2_WEIGHT_DECAY),
                       name=con_name)(input_tensor)
