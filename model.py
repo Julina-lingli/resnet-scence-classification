@@ -1,5 +1,5 @@
-import tensorflow as tf
-from tensorflow.python.keras import backend
+import tensorflow.keras.backend as K
+# import tensorflow.python.keras.backend as K
 from tensorflow.python.keras import utils
 from tensorflow.python.keras import layers, models, regularizers
 from common import L2_WEIGHT_DECAY
@@ -140,6 +140,8 @@ def _conv_block(input_tensor,
 
 def resnet_model_keras(num_classes):
 
+    # 在使用完模型之后，添加这两行代码即可清空之前model占用的内存：
+    K.clear_session()
     input_shape = MODEL_INPUT_SHAPE
     img_input = layers.Input(shape=input_shape)
     # 不考虑stride，要保证输入输出的维度一样，则卷积核大小和padding的数量对应关系为：
