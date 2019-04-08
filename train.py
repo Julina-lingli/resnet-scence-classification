@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 import matplotlib.pyplot as plt
 
 from input import load_data
@@ -31,13 +32,18 @@ def loss(logits, labels):
 
 def do_train(num_class, log_dir):
 
-    # load data
-    next_feature, next_label = load_data(JSON_TRAIN, TRAIN_IMAGES_DIR,
-                                         is_training=True, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
+    with tf.device("/cpu:0"):
+        # load data
+        next_feature, next_label = load_data(JSON_TRAIN, TRAIN_IMAGES_DIR,
+                                             is_training=True, batch_size=BATCH_SIZE, num_epochs=NUM_EPOCHS)
 
-    x_test, y_test = load_data(JSON_VAL, VAL_IMAGES_DIR,
-                               is_training=False, batch_size=BATCH_SIZE, num_epochs=1)
-    #
+        x_test, y_test = load_data(JSON_VAL, VAL_IMAGES_DIR,
+                                   is_training=False, batch_size=BATCH_SIZE, num_epochs=1)
+        # 创建模型，定义输入输出
+        model = resnet_model_keras(num_class)
+        model.load_weights(filepath="weights\\resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5",
+                           by_name=True)
+
     logging = TensorBoard(log_dir=log_dir)
     checkpoint = ModelCheckpoint(log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
                                  monitor='val_loss', verbose=1, save_weights_only=True,
@@ -45,10 +51,7 @@ def do_train(num_class, log_dir):
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=3, verbose=1)
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1)
 
-    # 创建模型，定义输入输出
-    model = resnet_model_keras(num_class)
-    model.load_weights(filepath="weights\\resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5",
-                       by_name=True)
+
     # loss_fn = losses.sparse_categorical_crossentropy()
     adm = optimizers.Adam()
     # metrics_fn = metrics.sparse_categorical_crossentropy()
@@ -95,7 +98,7 @@ def do_train(num_class, log_dir):
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig(LOG_DIR + "/fig/res_model_loss.png")
+    plt.savefig(log_dir + "/fig/res_model_loss.png")
     plt.show()
 
     # """
@@ -105,7 +108,7 @@ def do_train(num_class, log_dir):
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig(LOG_DIR + "/fig/res_model_top1.png")
+    plt.savefig(log_dir + "/fig/res_model_top1.png")
     plt.show()
 
     plt.plot(hist.history["top3_accuracy"])
@@ -114,7 +117,7 @@ def do_train(num_class, log_dir):
     plt.ylabel('accuracy3')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig(LOG_DIR + "/fig/res_model_top3.png")
+    plt.savefig(log_dir + "/fig/res_model_top3.png")
     plt.show()
     # """
     # 评估模型
@@ -128,10 +131,17 @@ def do_train(num_class, log_dir):
 
 
     return
+import os
+# 使用第一张GPU
+GPU_IDX = '0'
 
-log_dir = LOG_DIR + "/resnet50/"
+log_dir = LOG_DIR + "/resnet50_" + GPU_IDX + "/"
 if tf.gfile.Exists(log_dir):
     tf.gfile.DeleteRecursively(log_dir)
 
 tf.gfile.MakeDirs(log_dir)
+tf.gfile.MakeDirs(log_dir + 'fig/')
+
+
+os.environ["CUDA_VISIBLE_DEVICES"] = GPU_IDX
 do_train(NUM_CLASS, log_dir)
