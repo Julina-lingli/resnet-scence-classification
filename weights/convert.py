@@ -2,6 +2,12 @@
 """
 Reads Darknet config and weights and creates Keras model with TF backend.
 
+If you want to use original pretrained weights for YOLOv3:
+1. wget https://pjreddie.com/media/files/darknet53.conv.74
+2. rename it as darknet53.weights
+3. python convert.py -w darknet53.cfg darknet53.weights model_data/darknet53_weights.h5
+4. use model_data/darknet53_weights.h5 in train.py
+
 python convert.py yolov3.cfg yolov3.weights model_data/yolo.h5
 
 python convert.py -w darknet53.cfg darknet53.weights model_data/darknet53_weights.h5
@@ -272,3 +278,4 @@ def _main(args):
 
 if __name__ == '__main__':
     _main(parser.parse_args())
+

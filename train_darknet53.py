@@ -10,14 +10,26 @@ from common import JSON_TRAIN
 from common import TRAIN_IMAGES_DIR
 from common import JSON_VAL
 from common import VAL_IMAGES_DIR
+from common import NUM_CLASS
+from common import LOG_DIR
+'''
 from common import NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
 from common import NUM_EPOCHS
 from common import BATCH_SIZE
-from common import NUM_CLASS
-from common import LOG_DIR
 from common import STEPS_PER_EPOCH_FOR_TRAIN
 from common import STEPS_PER_EPOCH_FOR_EVAL
+'''
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 53879
 
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 7120
+#一般取值为64，128，256，512，1024
+# BATCH_SIZE = 1024
+BATCH_SIZE = 64
+# NUM_EPOCHS = 2000
+NUM_EPOCHS = 500
+STEPS_PER_EPOCH_FOR_TRAIN = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / BATCH_SIZE
+STEPS_PER_EPOCH_FOR_EVAL = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL / BATCH_SIZE
+MAX_STEPS = NUM_EPOCHS * (NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / BATCH_SIZE)
 from common import L2_WEIGHT_DECAY
 from common import MODEL_INPUT_SHAPE
 import math
@@ -25,8 +37,8 @@ import os
 
 # NUM_EPOCHS_1 = 50
 # NUM_EPOCHS_2 = 100
-NUM_EPOCHS_1 = 5
-NUM_EPOCHS_2 = 10
+NUM_EPOCHS_1 = 50
+NUM_EPOCHS_2 = 100
 
 def darknet53_model(nb_classes=80):
     # 创建模型，定义输入输

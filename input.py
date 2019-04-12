@@ -159,7 +159,7 @@ def _py_parse_function(filename, label):
 
 # _parse_function("D:\datasets\\ai_challenger_scene\scene_train_images_20170904\\00000ae5e7fcc87222f1fb6f221e7501558e5b08.jpg",1)
 
-def load_data(json_path, images_dir, is_training, batch_size, num_epochs):
+def load_data(json_path, images_dir, is_training, batch_size, num_epochs=None):
     #
     filenames, label_list = get_image_label_from_json(json_path, images_dir)
     print("filenames", filenames[:2])
