@@ -114,7 +114,8 @@ def do_train(nb_classes, log_dir):
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.savefig(log_dir + "/fig/model_loss_stage1.png")
-        plt.show()
+        # plt.show()
+        plt.close()
 
         # """
         plt.plot(hist1.history["categorical_accuracy"])
@@ -124,7 +125,8 @@ def do_train(nb_classes, log_dir):
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.savefig(log_dir + "/fig/model_top1_stage1.png")
-        plt.show()
+        # plt.show()
+        plt.close()
 
         plt.plot(hist1.history["top3_accuracy"])
         plt.plot(hist1.history["val_top3_accuracy"])
@@ -133,7 +135,8 @@ def do_train(nb_classes, log_dir):
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.savefig(log_dir + "/fig/model_top3_stage1.png")
-        plt.show()
+        # plt.show()
+        plt.close()
 
         model.save_weights(log_dir + 'trained_weights_stage1.h5')
 
@@ -165,7 +168,8 @@ def do_train(nb_classes, log_dir):
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.savefig(log_dir + "/fig/model_loss_stage2.png")
-        plt.show()
+        # plt.show()
+        plt.close()
 
         # """
         plt.plot(hist2.history["categorical_accuracy"])
@@ -175,7 +179,8 @@ def do_train(nb_classes, log_dir):
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.savefig(log_dir + "/fig/model_top1_stage2.png")
-        plt.show()
+        # plt.show()
+        plt.close()
 
         plt.plot(hist2.history["top3_accuracy"])
         plt.plot(hist2.history["val_top3_accuracy"])
@@ -184,7 +189,8 @@ def do_train(nb_classes, log_dir):
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.savefig(log_dir + "/fig/model_top3_stage2.png")
-        plt.show()
+        # plt.show()
+        plt.close()
 
         model.save_weights(log_dir + 'trained_weights_final.h5')
 
