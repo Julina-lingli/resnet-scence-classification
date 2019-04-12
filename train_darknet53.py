@@ -79,8 +79,8 @@ def do_train(nb_classes, log_dir):
     steps_per_epoch = math.ceil(STEPS_PER_EPOCH_FOR_TRAIN)
     val_steps = math.ceil(STEPS_PER_EPOCH_FOR_EVAL)
 
-    steps_per_epoch = math.ceil(500/BATCH_SIZE)
-    val_steps= math.ceil(500/BATCH_SIZE)
+    # steps_per_epoch = math.ceil(500/BATCH_SIZE)
+    # val_steps= math.ceil(500/BATCH_SIZE)
 
     # validation_steps = int(320/BATCH_SIZE)
     print("steps_per_epoch:", steps_per_epoch)
