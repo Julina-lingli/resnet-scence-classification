@@ -192,7 +192,7 @@ def load_data(json_path, images_dir, is_training, batch_size, num_epochs=None):
     # 采用tf的标准图像解码函数，将dataset数据集中的每个元素都应用于_parse_function
     dataset = dataset.map(lambda x, y:_parse_function(x, y, is_training))
     # 此时dataset中的一个元素是(image_resized_batch, label_batch)
-    dataset = dataset.shuffle(buffer_size=1000, seed=2000).batch(batch_size).repeat()
+    dataset = dataset.shuffle(buffer_size=1000, seed=2000).batch(batch_size, drop_remainder=True).repeat()
     # 划分batch，epoch, repeat()参数设置为空，防止循环读取数据时超过范围
     # dataset = dataset.batch(batch_size).repeat(num_epochs)
     # dataset = dataset.batch(batch_size).repeat()
